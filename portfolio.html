@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALEXEI BAHMET — 3D Artist & Motion Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #070709;
+    --bg2: #0d0d10;
+    --text: #f0eeea;
+    --muted: #6b6b72;
+    --accent: #9ca3c4;
+    --accent2: #c4b8a3;
+    --border: rgba(255,255,255,0.06);
+    --glow: rgba(156,163,196,0.12);
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Space Grotesk', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    position: fixed; top: 0; left: 0; z-index: 9999;
+    pointer-events: none;
+  }
+  #cursor-dot {
+    width: 5px; height: 5px;
+    background: var(--text);
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, background 0.2s;
+  }
+  #cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(240,238,234,0.4);
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s, border-color 0.3s;
+  }
+  body.cursor-hover #cursor-ring {
+    width: 56px; height: 56px;
+    border-color: var(--accent);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px;
+    mix-blend-mode: normal;
+  }
+  nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(7,7,9,0.9) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    position: relative;
+    z-index: 1;
+  }
+  .nav-links {
+    display: flex; gap: 40px;
+    list-style: none;
+    position: relative; z-index: 1;
+  }
+  .nav-links a {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .hero-canvas-wrap {
+    position: absolute; inset: 0;
+    z-index: 0;
+  }
+  #hero-canvas { width: 100%; height: 100%; display: block; }
+
+  .hero-gradient {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 70% 40%, rgba(100,110,160,0.08) 0%, transparent 70%),
+      linear-gradient(to bottom, transparent 40%, rgba(7,7,9,0.7) 80%, var(--bg) 100%),
+      linear-gradient(to right, rgba(7,7,9,0.6) 0%, transparent 50%);
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 48px 80px;
+    max-width: 700px;
+  }
+  .hero-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s 0.3s forwards;
+  }
+  .hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(72px, 10vw, 130px);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 1.2s 0.5s forwards;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-tagline {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 56px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s 0.8s forwards;
+  }
+  .hero-actions {
+    display: flex; gap: 20px; align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1s 1.1s forwards;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+  .hero-scroll {
+    position: absolute; right: 48px; bottom: 80px; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards;
+  }
+  .hero-scroll span {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+  }
+  .scroll-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(to bottom, var(--muted), transparent);
+    animation: scrollPulse 2s 2s infinite;
+  }
+
+  /* ── SECTION BASE ── */
+  section { padding: 160px 48px; position: relative; }
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 0 0 40px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.4;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-bottom: 80px;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  /* ── PROJECTS ── */
+  #projects { padding-top: 120px; }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .project-card {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    background: var(--bg2);
+    cursor: none;
+  }
+  .project-card.large {
+    grid-column: span 2;
+    aspect-ratio: 16/7;
+  }
+  .project-canvas {
+    width: 100%; height: 100%;
+    display: block;
+    transition: transform 0.8s cubic-bezier(0.23,1,0.32,1);
+  }
+  .project-card:hover .project-canvas { transform: scale(1.04); }
+  .project-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(7,7,9,0.95) 0%, rgba(7,7,9,0.2) 50%, transparent 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 36px;
+    transition: background 0.5s;
+  }
+  .project-card:hover .project-overlay {
+    background: linear-gradient(to top, rgba(7,7,9,0.98) 0%, rgba(7,7,9,0.5) 60%, rgba(7,7,9,0.1) 100%);
+  }
+  .project-num {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .project-name {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.5vw, 34px);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    margin-bottom: 6px;
+  }
+  .project-meta {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .project-tools {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 16px;
+    transform: translateY(8px);
+    opacity: 0;
+    transition: all 0.4s 0.1s;
+  }
+  .project-card:hover .project-tools { opacity: 1; transform: translateY(0); }
+  .tool-tag {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+  }
+  .project-arrow {
+    position: absolute; top: 28px; right: 28px;
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s, background 0.3s;
+  }
+  .project-card:hover .project-arrow { opacity: 1; }
+  .project-arrow svg { width: 14px; height: 14px; stroke: var(--text); fill: none; }
+
+  /* ── ABOUT ── */
+  #about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .about-left { position: sticky; top: 120px; }
+  .about-visual {
+    width: 100%; aspect-ratio: 3/4;
+    background: var(--bg2);
+    position: relative;
+    overflow: hidden;
+  }
+  #about-canvas { width: 100%; height: 100%; display: block; }
+  .about-right { }
+  .about-manifesto {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 48px;
+  }
+  .about-manifesto em { font-style: italic; color: var(--accent); }
+  .about-text {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+  .about-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ── PROCESS ── */
+  #process { background: var(--bg2); }
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .process-step {
+    background: var(--bg);
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s;
+  }
+  .process-step::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .process-step:hover { background: #0f0f13; }
+  .process-step:hover::before { opacity: 1; }
+  .process-step-num {
+    font-family: var(--font-display);
+    font-size: 60px;
+    font-weight: 300;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 24px;
+    transition: color 0.4s;
+  }
+  .process-step:hover .process-step-num { color: rgba(156,163,196,0.15); }
+  .process-step-title {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .process-step-text {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  /* ── TOOLS ── */
+  #tools { padding: 80px 0; overflow: hidden; }
+  .tools-label {
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 48px;
+  }
+  .marquee-wrap {
+    display: flex; gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .marquee-track {
+    display: flex;
+    animation: marquee 18s linear infinite;
+    will-change: transform;
+  }
+  .marquee-item {
+    display: flex; align-items: center; gap: 20px;
+    padding: 28px 48px;
+    white-space: nowrap;
+    border-right: 1px solid var(--border);
+  }
+  .marquee-item-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+  .marquee-item:hover .marquee-item-name { color: var(--text); }
+  .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0.4; }
+
+  /* ── CONTACT ── */
+  #contact {
+    text-align: center;
+    padding: 160px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(156,163,196,0.04) 0%, transparent 70%);
+  }
+  #contact .section-label { justify-content: center; }
+  #contact .section-label::after { display: none; }
+  .contact-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 8vw, 110px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .contact-title em { font-style: italic; color: var(--accent); }
+  .contact-links {
+    display: flex; justify-content: center; gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 80px;
+  }
+  .contact-link {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 32px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-link::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--glow);
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  .contact-link:hover { color: var(--text); border-color: rgba(156,163,196,0.25); }
+  .contact-link:hover::before { transform: translateY(0); }
+  .contact-link span { position: relative; }
+  .contact-email {
+    font-family: var(--font-display);
+    font-size: clamp(18px, 2.5vw, 28px);
+    font-weight: 300;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .contact-email:hover { color: var(--text); border-color: rgba(240,238,234,0.3); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .footer-right {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.35s; }
+  .reveal-delay-4 { transition-delay: 0.5s; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 0.7; transform: scaleY(1.15); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    section { padding: 100px 24px; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card.large { grid-column: span 1; aspect-ratio: 4/3; }
+    #about { grid-template-columns: 1fr; }
+    .about-left { position: static; }
+    .process-grid { grid-template-columns: 1fr 1fr; }
+    .hero-content { padding: 0 24px 60px; }
+    .hero-scroll { display: none; }
+    .contact-links { gap: 2px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .nav-links { gap: 24px; }
+  }
+  @media (max-width: 600px) {
+    .process-grid { grid-template-columns: 1fr; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+
+  /* ── PROJECT HOVER "VIEW" LABEL ── */
+  .project-card { cursor: none; }
+  .project-view-hint {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    width: 80px; height: 80px;
+    border: 1px solid rgba(240,238,234,0.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.35s, transform 0.5s cubic-bezier(0.23,1,0.32,1);
+    z-index: 5;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    background: rgba(7,7,9,0.25);
+  }
+  .project-view-hint span {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .project-card:hover .project-view-hint {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* ── MODAL ── */
+  #modal-backdrop {
+    position: fixed; inset: 0; z-index: 2000;
+    pointer-events: none;
+    opacity: 0;
+  }
+  #modal-backdrop.open {
+    pointer-events: all;
+  }
+
+  /* Dark overlay that fades in */
+  #modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(5,5,8,0.92);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    backdrop-filter: blur(12px);
+  }
+  #modal-backdrop.open #modal-overlay { opacity: 1; }
+
+  /* The panel that "expands" from the card position */
+  #modal-panel {
+    position: absolute;
+    background: #0d0d10;
+    overflow: hidden;
+    /* Start state set by JS (card rect) */
+    transition:
+      top 0.7s cubic-bezier(0.77,0,0.175,1),
+      left 0.7s cubic-bezier(0.77,0,0.175,1),
+      width 0.7s cubic-bezier(0.77,0,0.175,1),
+      height 0.7s cubic-bezier(0.77,0,0.175,1),
+      border-radius 0.7s cubic-bezier(0.77,0,0.175,1);
+    border-radius: 0px;
+  }
+
+  /* Modal inner content — fades in after expand */
+  #modal-inner {
+    position: absolute; inset: 0;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.4s 0.55s ease;
+    scrollbar-width: none;
+  }
+  #modal-inner::-webkit-scrollbar { display: none; }
+  #modal-backdrop.open #modal-inner { opacity: 1; }
+
+  #modal-close {
+    position: fixed;
+    top: 28px; right: 36px;
+    z-index: 2100;
+    width: 44px; height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: rgba(13,13,16,0.8);
+    display: flex; align-items: center; justify-content: center;
+    cursor: none;
+    opacity: 0;
+    transform: rotate(-45deg);
+    transition: opacity 0.3s 0.7s, transform 0.3s 0.7s, background 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  #modal-close svg { width: 16px; height: 16px; stroke: var(--text); fill: none; }
+  #modal-backdrop.open #modal-close {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  #modal-close:hover { background: rgba(156,163,196,0.12); }
+
+  /* Modal media area */
+  .modal-media {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    background: #000;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .modal-media canvas,
+  .modal-media video,
+  .modal-media img {
+    width: 100%; height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Video placeholder / play button */
+  .modal-video-wrap {
+    position: relative;
+    width: 100%; height: 100%;
+  }
+  .modal-video-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 40% 40%, rgba(60,70,120,0.3) 0%, #000 70%);
+    position: relative;
+  }
+  .modal-play-btn {
+    width: 72px; height: 72px;
+    border: 1px solid rgba(240,238,234,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: none;
+    transition: background 0.3s, transform 0.3s, border-color 0.3s;
+    position: relative; z-index: 2;
+  }
+  .modal-play-btn:hover {
+    background: rgba(156,163,196,0.15);
+    transform: scale(1.08);
+    border-color: rgba(156,163,196,0.5);
+  }
+  .modal-play-btn svg { width: 22px; height: 22px; fill: var(--text); margin-left: 4px; }
+  .modal-video-label {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Modal body */
+  .modal-body {
+    padding: 56px 64px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .modal-cat {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5vw, 70px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin-bottom: 32px;
+  }
+  .modal-desc {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 600px;
+  }
+  .modal-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+  .modal-section-title {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .modal-tools {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .modal-tool-tag {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .modal-tool-tag:hover { color: var(--text); border-color: rgba(156,163,196,0.3); }
+
+  /* Breakdown shots grid */
+  .modal-shots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 48px;
+  }
+  .modal-shot {
+    aspect-ratio: 4/3;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .modal-shot canvas { width: 100%; height: 100%; display: block; }
+  .modal-shot-label {
+    position: absolute; bottom: 12px; left: 16px;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @media (max-width: 700px) {
+    .modal-body { padding: 32px 24px 60px; }
+    .modal-shots { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor">
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">ALEXEI BAHMET</a>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-canvas-wrap">
+    <canvas id="hero-canvas"></canvas>
+  </div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <p class="hero-label">3D Artist & Motion Designer</p>
+    <h1 class="hero-name">Alexei<br><em>Bahmet</em></h1>
+    <p class="hero-tagline">Creating cinematic digital worlds.</p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">
+        <span>View Projects</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+      </a>
+      <a href="#contact" class="btn-ghost">
+        <span>Contact</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <p class="section-label reveal">Featured Work</p>
+  <h2 class="section-title reveal reveal-delay-1">Selected<br><em>Projects</em></h2>
+
+  <div class="projects-grid">
+    <!-- Card 1 – Large -->
+    <div class="project-card large reveal" data-project="neon">
+      <canvas class="project-canvas" data-scene="neon"></canvas>
+      <div class="project-view-hint"><span>Open</span></div>
+      <div class="project-overlay">
+        <p class="project-num">01</p>
+        <h3 class="project-name">Neon District</h3>
+        <p class="project-meta">2026 — Environment Design</p>
+        <div class="project-tools">
+          <span class="tool-tag">Blender</span>
+          <span class="tool-tag">Cycles</span>
+          <span class="tool-tag">After Effects</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="project-card reveal reveal-delay-1" data-project="chrome">
+      <canvas class="project-canvas" data-scene="chrome"></canvas>
+      <div class="project-view-hint"><span>Open</span></div>
+      <div class="project-overlay">
+        <p class="project-num">02</p>
+        <h3 class="project-name">Chrome Sculpture</h3>
+        <p class="project-meta">2025 — Product Visualization</p>
+        <div class="project-tools">
+          <span class="tool-tag">Cinema 4D</span>
+          <span class="tool-tag">Redshift</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="project-card reveal reveal-delay-2" data-project="void">
+      <canvas class="project-canvas" data-scene="void"></canvas>
+      <div class="project-view-hint"><span>Open</span></div>
+      <div class="project-overlay">
+        <p class="project-num">03</p>
+        <h3 class="project-name">Void Sequence</h3>
+        <p class="project-meta">2025 — Motion Design</p>
+        <div class="project-tools">
+          <span class="tool-tag">Houdini</span>
+          <span class="tool-tag">Karma</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="project-card reveal reveal-delay-1" data-project="orbit">
+      <canvas class="project-canvas" data-scene="orbit"></canvas>
+      <div class="project-view-hint"><span>Open</span></div>
+      <div class="project-overlay">
+        <p class="project-num">04</p>
+        <h3 class="project-name">Orbital Drift</h3>
+        <p class="project-meta">2024 — Sci-Fi Environment</p>
+        <div class="project-tools">
+          <span class="tool-tag">Unreal Engine</span>
+          <span class="tool-tag">Blender</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="project-card reveal reveal-delay-2" data-project="liquid">
+      <canvas class="project-canvas" data-scene="liquid"></canvas>
+      <div class="project-view-hint"><span>Open</span></div>
+      <div class="project-overlay">
+        <p class="project-num">05</p>
+        <h3 class="project-name">Liquid Metal</h3>
+        <p class="project-meta">2024 — Abstract Art</p>
+        <div class="project-tools">
+          <span class="tool-tag">Houdini</span>
+          <span class="tool-tag">Substance</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="about-left reveal">
+    <div class="about-visual">
+      <canvas id="about-canvas"></canvas>
+    </div>
+  </div>
+  <div class="about-right">
+    <p class="section-label reveal">About</p>
+    <p class="about-manifesto reveal reveal-delay-1">
+      I create <em>atmospheric 3D visuals</em> focused on emotion, lighting and cinematic storytelling.
+    </p>
+    <p class="about-text reveal reveal-delay-2">
+      Based in Moscow. Working globally. My work exists at the intersection of technical precision and artistic intuition — each piece a small universe with its own light, weight, and silence.
+    </p>
+    <p class="about-text reveal reveal-delay-3">
+      Inspired by brutalist architecture, analog photography, and the ambient compositions of Brian Eno. I believe the best visual work makes you feel something you can't name.
+    </p>
+    <div class="about-stats reveal reveal-delay-4">
+      <div>
+        <div class="stat-num">6+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div>
+        <div class="stat-num">80+</div>
+        <div class="stat-label">Projects</div>
+      </div>
+      <div>
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Clients</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section id="process">
+  <p class="section-label reveal">How I Work</p>
+  <h2 class="section-title reveal reveal-delay-1">The<br><em>Process</em></h2>
+  <div class="process-grid">
+    <div class="process-step reveal">
+      <div class="process-step-num">01</div>
+      <h3 class="process-step-title">Concept</h3>
+      <p class="process-step-text">Mood boards, references, rough sketches. Defining the emotional core before touching any software.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-1">
+      <div class="process-step-num">02</div>
+      <h3 class="process-step-title">Blockout</h3>
+      <p class="process-step-text">Geometry first. Clay renders to validate composition, scale, and light before any detail work.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-2">
+      <div class="process-step-num">03</div>
+      <h3 class="process-step-title">Lighting</h3>
+      <p class="process-step-text">The most critical pass. Cinematic lighting drives all mood and atmosphere in the final piece.</p>
+    </div>
+    <div class="process-step reveal reveal-delay-3">
+      <div class="process-step-num">04</div>
+      <h3 class="process-step-title">Polish</h3>
+      <p class="process-step-text">Materials, post-processing, color grading. The difference between good and unforgettable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tools -->
+<section id="tools">
+  <p class="tools-label">Tools & Software</p>
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee">
+      <!-- Items duplicated for seamless loop -->
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Blender</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Cinema 4D</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Houdini</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Unreal Engine</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Substance Painter</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">After Effects</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">DaVinci Resolve</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">ZBrush</span></div>
+      <!-- Duplicate -->
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Blender</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Cinema 4D</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Houdini</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Unreal Engine</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">Substance Painter</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">After Effects</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">DaVinci Resolve</span></div>
+      <div class="marquee-item"><div class="marquee-dot"></div><span class="marquee-item-name">ZBrush</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-bg"></div>
+  <p class="section-label reveal">Get in Touch</p>
+  <h2 class="contact-title reveal reveal-delay-1">Let's<br><em>Work</em><br>Together</h2>
+  <div class="contact-links reveal reveal-delay-2">
+    <a href="mailto:alex@volkov.studio" class="contact-link">
+      <span>Email</span>
+    </a>
+    <a href="#" class="contact-link">
+      <span>Instagram</span>
+    </a>
+    <a href="#" class="contact-link">
+      <span>Behance</span>
+    </a>
+    <a href="#" class="contact-link">
+      <span>ArtStation</span>
+    </a>
+  </div>
+  <a href="mailto:alex@volkov.studio" class="contact-email reveal reveal-delay-3">alex@volkov.studio</a>
+</section>
+
+<!-- ── MODAL ── -->
+<div id="modal-backdrop">
+  <div id="modal-overlay"></div>
+  <div id="modal-panel">
+    <div id="modal-inner">
+      <!-- Media (hero visual / video) -->
+      <div class="modal-media">
+        <div class="modal-video-wrap">
+          <div class="modal-video-placeholder" id="modal-placeholder">
+            <canvas id="modal-preview-canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+            <div class="modal-play-btn" id="modal-play-btn" title="Play showreel">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
+            <span class="modal-video-label">Play Showreel</span>
+          </div>
+          <!-- Real video (hidden until play clicked) -->
+          <video id="modal-video" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" controls>
+            <!-- Replace src with your actual video -->
+            <source src="your-showreel.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <p class="modal-cat" id="modal-cat">Environment Design</p>
+        <h2 class="modal-title" id="modal-title">Project Name</h2>
+        <p class="modal-desc" id="modal-desc">Project description.</p>
+
+        <div class="modal-divider"></div>
+
+        <p class="modal-section-title">Tools Used</p>
+        <div class="modal-tools" id="modal-tools"></div>
+
+        <div class="modal-divider"></div>
+
+        <p class="modal-section-title">Process Breakdown</p>
+        <div class="modal-shots" id="modal-shots"></div>
+      </div>
+    </div>
+  </div>
+  <button id="modal-close" aria-label="Close">
+    <svg viewBox="0 0 16 16"><path d="M2 2l12 12M14 2L2 14" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<!-- Footer -->
+<footer>
+  <span class="footer-copy">© 2026 Alex Volkov. All rights reserved.</span>
+  <span class="footer-right">Moscow · Global</span>
+</footer>
+
+<script>
+/* ─────────── CURSOR ─────────── */
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let mx = -100, my = -100, rx = -100, ry = -100;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animCursor() {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  cursorDot.style.left = mx + 'px';
+  cursorDot.style.top = my + 'px';
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+document.querySelectorAll('a, button, .project-card, .contact-link').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+/* ─────────── SCROLL REVEAL ─────────── */
+const revealEls = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => obs.observe(el));
+
+/* ─────────── SMOOTH SCROLL ─────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id === '#') return;
+    e.preventDefault();
+    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* ─────────── HERO CANVAS – Particle Field ─────────── */
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], mouse = { x: null, y: null };
+  const N = 120;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+
+  document.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = rnd(0, W);
+      this.y = rnd(0, H);
+      this.ox = this.x; this.oy = this.y;
+      this.vx = rnd(-0.18, 0.18);
+      this.vy = rnd(-0.1, 0.1);
+      this.r = rnd(0.6, 1.8);
+      this.a = rnd(0.15, 0.55);
+      this.speed = rnd(0.4, 1.1);
+    }
+    update(t) {
+      this.x += this.vx + Math.sin(t * 0.0006 + this.oy * 0.01) * 0.2;
+      this.y += this.vy + Math.cos(t * 0.0006 + this.ox * 0.01) * 0.12;
+      if (this.x < -10) this.x = W + 10;
+      if (this.x > W + 10) this.x = -10;
+      if (this.y < -10) this.y = H + 10;
+      if (this.y > H + 10) this.y = -10;
+      if (mouse.x !== null) {
+        const dx = this.x - mouse.x, dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          const f = (120 - dist) / 120 * 0.5;
+          this.x += dx / dist * f;
+          this.y += dy / dist * f;
+        }
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(156,163,196,${this.a})`;
+      ctx.fill();
+    }
+  }
+
+  function initParticles() {
+    particles = [];
+    for (let i = 0; i < N; i++) particles.push(new Particle());
+  }
+  initParticles();
+
+  // Draw subtle lines between close particles
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 90) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(156,163,196,${0.08 * (1 - d / 90)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // Draw large atmospheric orbs
+  function drawOrbs(t) {
+    const orbs = [
+      { x: W * 0.72, y: H * 0.35, r: Math.min(W, H) * 0.32, c: 'rgba(90,100,150,' },
+      { x: W * 0.3, y: H * 0.7, r: Math.min(W, H) * 0.22, c: 'rgba(60,70,110,' },
+    ];
+    orbs.forEach(o => {
+      const pulse = 1 + Math.sin(t * 0.0008) * 0.04;
+      const grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * pulse);
+      grd.addColorStop(0, o.c + '0.05)');
+      grd.addColorStop(1, o.c + '0)');
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    });
+  }
+
+  let t = 0;
+  function tick(ts) {
+    t = ts;
+    ctx.clearRect(0, 0, W, H);
+    drawOrbs(ts);
+    drawConnections();
+    particles.forEach(p => { p.update(ts); p.draw(); });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ─────────── PROJECT CANVASES ─────────── */
+(function() {
+  // Expose scenes globally so modal preview canvas can reuse them
+  const scenes = window.sceneLib = {
+    neon: function(ctx, W, H, t) {
+      // Grid cityscape
+      ctx.fillStyle = '#070709';
+      ctx.fillRect(0, 0, W, H);
+      // Horizon glow
+      const hg = ctx.createRadialGradient(W/2, H*0.55, 0, W/2, H*0.55, W*0.6);
+      hg.addColorStop(0, 'rgba(80,60,180,0.25)');
+      hg.addColorStop(0.5, 'rgba(40,30,100,0.12)');
+      hg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = hg;
+      ctx.fillRect(0,0,W,H);
+      // Grid lines
+      ctx.strokeStyle = 'rgba(100,80,220,0.15)';
+      ctx.lineWidth = 1;
+      const vp = { x: W/2, y: H*0.52 };
+      for (let i = -12; i <= 12; i++) {
+        ctx.beginPath();
+        ctx.moveTo(vp.x, vp.y);
+        ctx.lineTo(vp.x + i * W * 0.12, H);
+        ctx.stroke();
+      }
+      for (let j = 0; j < 10; j++) {
+        const y = vp.y + (H - vp.y) * (j / 10) ** 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, y); ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      // Buildings silhouette
+      ctx.fillStyle = 'rgba(15,12,30,0.9)';
+      [[0.05,0.6,0.08,0.35],[0.12,0.55,0.06,0.42],[0.18,0.5,0.09,0.48],
+       [0.28,0.45,0.07,0.52],[0.35,0.52,0.1,0.45],[0.5,0.4,0.06,0.55],
+       [0.56,0.48,0.08,0.47],[0.65,0.44,0.07,0.52],[0.73,0.5,0.09,0.45],
+       [0.82,0.46,0.08,0.5],[0.9,0.55,0.07,0.42]
+      ].forEach(([x,y,w,h]) => ctx.fillRect(x*W, y*H, w*W, h*H));
+      // Neon accents
+      const pulse = Math.sin(t*0.0012) * 0.3 + 0.7;
+      ctx.strokeStyle = `rgba(120,80,255,${pulse*0.6})`;
+      ctx.lineWidth = 1.5;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(120,80,255,0.5)';
+      ctx.beginPath(); ctx.moveTo(0.05*W, 0.6*H); ctx.lineTo(0.05*W, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0.5*W, 0.4*H); ctx.lineTo(0.5*W, H); ctx.stroke();
+      ctx.shadowBlur = 0;
+    },
+    chrome: function(ctx, W, H, t) {
+      ctx.fillStyle = '#0a0a0c';
+      ctx.fillRect(0,0,W,H);
+      // Chrome sphere
+      const cx = W/2, cy = H/2, r = Math.min(W,H)*0.3;
+      const rot = t * 0.0005;
+      const grd = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, r*0.05, cx, cy, r);
+      grd.addColorStop(0, 'rgba(240,238,234,0.95)');
+      grd.addColorStop(0.2, 'rgba(180,185,200,0.8)');
+      grd.addColorStop(0.5, 'rgba(80,90,110,0.6)');
+      grd.addColorStop(0.8, 'rgba(20,22,30,0.8)');
+      grd.addColorStop(1, 'rgba(5,5,8,0.9)');
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.fillStyle = grd; ctx.fill();
+      // Reflection lines
+      ctx.save(); ctx.clip();
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 8; i++) {
+        const a = rot + i * Math.PI / 4;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a)*r*0.1, cy + Math.sin(a)*r*0.1);
+        ctx.lineTo(cx + Math.cos(a)*r, cy + Math.sin(a)*r);
+        ctx.stroke();
+      }
+      ctx.restore();
+      // Rim light
+      const rim = ctx.createRadialGradient(cx+r*0.6, cy-r*0.6, 0, cx, cy, r*1.2);
+      rim.addColorStop(0, 'rgba(156,163,196,0.1)');
+      rim.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rim;
+      ctx.beginPath(); ctx.arc(cx, cy, r*1.2, 0, Math.PI*2);
+      ctx.fill();
+    },
+    void: function(ctx, W, H, t) {
+      ctx.fillStyle = '#06060a';
+      ctx.fillRect(0,0,W,H);
+      const cx = W/2, cy = H/2;
+      for (let ring = 5; ring >= 1; ring--) {
+        const r = Math.min(W,H) * ring * 0.12;
+        const phase = t * 0.0004 * (ring % 2 === 0 ? 1 : -1);
+        const a = 0.04 + ring * 0.015;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + Math.sin(t*0.001 + ring)*8, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(156,163,196,${a})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+      // Center void
+      const vg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(W,H)*0.15);
+      vg.addColorStop(0, 'rgba(0,0,0,1)');
+      vg.addColorStop(0.7, 'rgba(10,8,20,0.8)');
+      vg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = vg;
+      ctx.beginPath(); ctx.arc(cx, cy, Math.min(W,H)*0.15, 0, Math.PI*2);
+      ctx.fill();
+      // Particles
+      for (let i = 0; i < 40; i++) {
+        const a2 = (i / 40) * Math.PI * 2 + t * 0.0003;
+        const r2 = Math.min(W,H) * (0.2 + (i%5)*0.04 + Math.sin(t*0.001+i)*0.02);
+        const px = cx + Math.cos(a2)*r2, py = cy + Math.sin(a2)*r2;
+        ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(156,163,196,${0.3 + Math.sin(t*0.002+i)*0.2})`;
+        ctx.fill();
+      }
+    },
+    orbit: function(ctx, W, H, t) {
+      ctx.fillStyle = '#07070b';
+      ctx.fillRect(0,0,W,H);
+      // Stars
+      if (!this._stars) {
+        this._stars = Array.from({length:100}, () => ({
+          x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.2+0.3, a: Math.random()
+        }));
+      }
+      this._stars.forEach(s => {
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(240,238,234,${s.a * (0.5 + 0.5*Math.sin(t*0.001+s.x))})`;
+        ctx.fill();
+      });
+      // Planet
+      const cx = W*0.55, cy = H*0.48, pr = Math.min(W,H)*0.25;
+      const pg = ctx.createRadialGradient(cx-pr*0.3, cy-pr*0.4, pr*0.05, cx, cy, pr);
+      pg.addColorStop(0, 'rgba(80,90,130,0.9)');
+      pg.addColorStop(0.5, 'rgba(30,35,60,0.95)');
+      pg.addColorStop(1, 'rgba(5,5,12,1)');
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, Math.PI*2);
+      ctx.fillStyle = pg; ctx.fill();
+      // Ring
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1, 0.3);
+      ctx.beginPath();
+      ctx.arc(0, 0, pr*1.6, 0, Math.PI*2);
+      ctx.arc(0, 0, pr*1.1, 0, Math.PI*2, true);
+      ctx.fillStyle = 'rgba(100,110,150,0.12)';
+      ctx.strokeStyle = 'rgba(156,163,196,0.2)';
+      ctx.lineWidth = 1;
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    },
+    liquid: function(ctx, W, H, t) {
+      ctx.fillStyle = '#080808';
+      ctx.fillRect(0,0,W,H);
+      const cx = W/2, cy = H/2;
+      const tt = t * 0.0007;
+      // Blob shape
+      const pts = 7;
+      const points = [];
+      for (let i = 0; i < pts; i++) {
+        const angle = (i / pts) * Math.PI * 2;
+        const r = Math.min(W,H) * (0.22 + 0.08 * Math.sin(tt * 2 + i * 1.3) + 0.04 * Math.cos(tt * 3 + i * 2.1));
+        points.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 0; i < pts; i++) {
+        const p1 = points[i], p2 = points[(i+1)%pts];
+        const mx2 = (p1.x+p2.x)/2, my2 = (p1.y+p2.y)/2;
+        ctx.quadraticCurveTo(p1.x, p1.y, mx2, my2);
+      }
+      ctx.closePath();
+      const mg = ctx.createRadialGradient(cx-30, cy-30, 10, cx, cy, Math.min(W,H)*0.3);
+      mg.addColorStop(0, 'rgba(220,220,230,0.92)');
+      mg.addColorStop(0.3, 'rgba(160,165,185,0.85)');
+      mg.addColorStop(0.7, 'rgba(60,65,85,0.8)');
+      mg.addColorStop(1, 'rgba(15,15,20,0.9)');
+      ctx.fillStyle = mg;
+      ctx.shadowBlur = 30;
+      ctx.shadowColor = 'rgba(156,163,196,0.15)';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  };
+  // Attach _stars to orbit scene
+  scenes.orbit._stars = null;
+
+  const cards = document.querySelectorAll('.project-card');
+  const running = [];
+
+  cards.forEach(card => {
+    const canvas = card.querySelector('.project-canvas');
+    const sceneName = canvas.dataset.scene;
+    const ctx = canvas.getContext('2d');
+    let W, H, animId;
+
+    function resize() {
+      W = canvas.width = card.offsetWidth;
+      H = canvas.height = card.offsetHeight;
+    }
+    resize();
+    new ResizeObserver(resize).observe(card);
+
+    const sceneFn = scenes[sceneName];
+    if (!sceneFn) return;
+
+    function loop(t) {
+      sceneFn.call(scenes[sceneName], ctx, W, H, t);
+      animId = requestAnimationFrame(loop);
+    }
+    animId = requestAnimationFrame(loop);
+  });
+})();
+
+/* ─────────── MODAL SYSTEM ─────────── */
+(function() {
+
+  /* Project data — edit this to personalise each project */
+  const PROJECTS = {
+    neon: {
+      title: 'Neon District',
+      cat: '2026 — Environment Design',
+      desc: 'A sprawling cyberpunk cityscape built inside Blender, rendered with Cycles. Every light source is a practical — thousands of neon tubes, flickering billboards, and reflective puddles compose an atmosphere somewhere between Blade Runner and Ghost in the Shell.',
+      tools: ['Blender', 'Cycles', 'After Effects', 'DaVinci Resolve'],
+      video: '', // put your mp4 URL here
+      shots: ['Clay Render', 'Lighting Pass', 'Colour Grade', 'Final Comp'],
+      scene: 'neon',
+    },
+    chrome: {
+      title: 'Chrome Sculpture',
+      cat: '2025 — Product Visualization',
+      desc: 'An exploration of pure reflectivity. One primitive form, twelve HDRI environments, zero post-processing tricks. The geometry is trivially simple; everything lives in the material and the light.',
+      tools: ['Cinema 4D', 'Redshift', 'Photoshop'],
+      video: '',
+      shots: ['Wireframe', 'Clay', 'Lighting Test', 'Final'],
+      scene: 'chrome',
+    },
+    void: {
+      title: 'Void Sequence',
+      cat: '2025 — Motion Design',
+      desc: 'A 90-second motion piece built entirely in Houdini. Procedural ring systems orbit a singularity — every frame is deterministic chaos. Rendered on Karma XPU overnight across three machines.',
+      tools: ['Houdini', 'Karma XPU', 'Nuke', 'DaVinci Resolve'],
+      video: '',
+      shots: ['Simulation Setup', 'Lighting Rig', 'Pre-comp', 'Final Frame'],
+      scene: 'void',
+    },
+    orbit: {
+      title: 'Orbital Drift',
+      cat: '2024 — Sci-Fi Environment',
+      desc: 'A real-time sci-fi environment built in Unreal Engine 5, explorable in first person. Nanite geometry from Blender, Lumen global illumination, and a custom sky shader give it a cinematic quality that traditional rendering cannot match.',
+      tools: ['Unreal Engine 5', 'Blender', 'Substance Painter'],
+      video: '',
+      shots: ['Blockout', 'Asset Pass', 'Lighting', 'Cinematic Shot'],
+      scene: 'orbit',
+    },
+    liquid: {
+      title: 'Liquid Metal',
+      cat: '2024 — Abstract Art',
+      desc: 'Simulated in Houdini FLIP, shaded in Redshift with a custom chromatic SSS material. The brief was simple: make something that looks alive.',
+      tools: ['Houdini', 'Redshift', 'Substance Painter', 'After Effects'],
+      video: '',
+      shots: ['Simulation Frame', 'Shader Test', 'Lighting', 'Final Output'],
+      scene: 'liquid',
+    },
+  };
+
+  const backdrop    = document.getElementById('modal-backdrop');
+  const panel       = document.getElementById('modal-panel');
+  const closeBtn    = document.getElementById('modal-close');
+  const modalInner  = document.getElementById('modal-inner');
+  const playBtn     = document.getElementById('modal-play-btn');
+  const modalVideo  = document.getElementById('modal-video');
+  const placeholder = document.getElementById('modal-placeholder');
+  const previewCanvas = document.getElementById('modal-preview-canvas');
+
+  let currentScene = null;
+  let previewAnimId = null;
+  let isOpen = false;
+
+  // ── Open modal expanding from card ──
+  function openModal(card) {
+    if (isOpen) return;
+    isOpen = true;
+
+    const key = card.dataset.project;
+    const data = PROJECTS[key];
+    if (!data) return;
+
+    // Populate content
+    document.getElementById('modal-cat').textContent = data.cat;
+    document.getElementById('modal-title').textContent = data.title;
+    document.getElementById('modal-desc').textContent = data.desc;
+
+    const toolsEl = document.getElementById('modal-tools');
+    toolsEl.innerHTML = data.tools.map(t => `<span class="modal-tool-tag">${t}</span>`).join('');
+
+    const shotsEl = document.getElementById('modal-shots');
+    shotsEl.innerHTML = data.shots.map(label => `
+      <div class="modal-shot">
+        <canvas class="modal-shot-canvas" data-scene="${data.scene}"></canvas>
+        <span class="modal-shot-label">${label}</span>
+      </div>
+    `).join('');
+
+    // Reset video
+    modalVideo.style.display = 'none';
+    placeholder.style.display = 'flex';
+    modalVideo.pause();
+    modalVideo.currentTime = 0;
+
+    // Animate preview canvas with same scene
+    startPreviewAnim(data.scene);
+
+    // Get card's bounding rect for origin animation
+    const rect = card.getBoundingClientRect();
+
+    // Set panel to card position (starting state)
+    panel.style.transition = 'none';
+    panel.style.top    = rect.top + 'px';
+    panel.style.left   = rect.left + 'px';
+    panel.style.width  = rect.width + 'px';
+    panel.style.height = rect.height + 'px';
+    panel.style.borderRadius = '0px';
+
+    backdrop.style.opacity = '1';
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Trigger expansion after one frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        panel.style.transition =
+          'top 0.72s cubic-bezier(0.77,0,0.175,1),' +
+          'left 0.72s cubic-bezier(0.77,0,0.175,1),' +
+          'width 0.72s cubic-bezier(0.77,0,0.175,1),' +
+          'height 0.72s cubic-bezier(0.77,0,0.175,1),' +
+          'border-radius 0.72s cubic-bezier(0.77,0,0.175,1)';
+        panel.style.top    = '0px';
+        panel.style.left   = '0px';
+        panel.style.width  = '100vw';
+        panel.style.height = '100vh';
+
+        // Animate breakdown shot canvases after expansion
+        setTimeout(initShotCanvases, 800);
+      });
+    });
+  }
+
+  // ── Close modal collapsing back ──
+  function closeModal() {
+    if (!isOpen) return;
+
+    // Fade content first
+    modalInner.style.transition = 'opacity 0.25s ease';
+    modalInner.style.opacity = '0';
+    closeBtn.style.opacity = '0';
+    closeBtn.style.transform = 'rotate(-45deg)';
+    document.getElementById('modal-overlay').style.opacity = '0';
+
+    // Collapse panel to center
+    panel.style.top    = '25vh';
+    panel.style.left   = '25vw';
+    panel.style.width  = '50vw';
+    panel.style.height = '50vh';
+    panel.style.borderRadius = '2px';
+
+    setTimeout(() => {
+      backdrop.classList.remove('open');
+      backdrop.style.opacity = '0';
+      document.body.style.overflow = '';
+      isOpen = false;
+      modalInner.style.transition = '';
+      modalInner.style.opacity = '';
+      closeBtn.style.transition = '';
+      modalVideo.pause();
+      modalVideo.style.display = 'none';
+      placeholder.style.display = 'flex';
+      if (previewAnimId) { cancelAnimationFrame(previewAnimId); previewAnimId = null; }
+    }, 500);
+  }
+
+  // ── Preview canvas animation ──
+  function startPreviewAnim(sceneName) {
+    if (previewAnimId) cancelAnimationFrame(previewAnimId);
+    const ctx = previewCanvas.getContext('2d');
+    function resize() {
+      previewCanvas.width  = previewCanvas.offsetWidth;
+      previewCanvas.height = previewCanvas.offsetHeight;
+    }
+    resize();
+
+    // Reuse the same scene functions (they're on window.sceneLib after we expose them)
+    const fn = window.sceneLib && window.sceneLib[sceneName];
+    if (!fn) return;
+
+    function loop(t) {
+      const W = previewCanvas.width, H = previewCanvas.height;
+      fn(ctx, W, H, t);
+      previewAnimId = requestAnimationFrame(loop);
+    }
+    previewAnimId = requestAnimationFrame(loop);
+  }
+
+  // ── Animate breakdown shot canvases ──
+  function initShotCanvases() {
+    document.querySelectorAll('.modal-shot-canvas').forEach((c, i) => {
+      const sceneName = c.dataset.scene;
+      const fn = window.sceneLib && window.sceneLib[sceneName];
+      if (!fn) return;
+      const ctx = c.getContext('2d');
+      c.width  = c.offsetWidth;
+      c.height = c.offsetHeight;
+      // Each shot gets a visual "variant" by using a time offset
+      const offset = i * 4000;
+      function loop(t) {
+        const W = c.offsetWidth, H = c.offsetHeight;
+        if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+        fn(ctx, W, H, t + offset);
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    });
+  }
+
+  // ── Play button: show real video or show "no video" info ──
+  playBtn.addEventListener('click', () => {
+    if (modalVideo.querySelector('source') &&
+        modalVideo.querySelector('source').getAttribute('src') !== 'your-showreel.mp4' &&
+        modalVideo.querySelector('source').getAttribute('src') !== '') {
+      placeholder.style.display = 'none';
+      modalVideo.style.display = 'block';
+      modalVideo.play();
+    } else {
+      // No real video set — show a nice message
+      playBtn.innerHTML = `<span style="font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);text-align:center;padding:0 8px;">Add video<br>src to HTML</span>`;
+    }
+  });
+
+  // ── Event listeners ──
+  document.querySelectorAll('.project-card[data-project]').forEach(card => {
+    card.addEventListener('click', () => openModal(card));
+  });
+  closeBtn.addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Prevent scroll inside modal from propagating to page
+  modalInner.addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+
+})();
+</script>
+
+<script>
+/* ─────────── ABOUT CANVAS – rotating ring ─────────── */
+(function() {
+  const canvas = document.getElementById('about-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas.parentElement);
+
+  function draw(t) {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0d0d10';
+    ctx.fillRect(0,0,W,H);
+    const cx = W/2, cy = H/2;
+    const r = Math.min(W,H) * 0.3;
+    // Atmospheric bg
+    const ag = ctx.createRadialGradient(cx, cy*0.6, 0, cx, cy*0.6, Math.min(W,H)*0.5);
+    ag.addColorStop(0, 'rgba(100,110,160,0.08)');
+    ag.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = ag;
+    ctx.fillRect(0,0,W,H);
+
+    // Rotating dashed ring
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(t * 0.0003);
+    ctx.setLineDash([4, 12]);
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(156,163,196,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-t * 0.0005);
+    ctx.setLineDash([2, 18]);
+    ctx.beginPath(); ctx.arc(0, 0, r*0.68, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(196,184,163,0.12)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Center orb
+    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, r*0.35);
+    cg.addColorStop(0, 'rgba(156,163,196,0.15)');
+    cg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, r*0.35, 0, Math.PI*2);
+    ctx.fillStyle = cg; ctx.fill();
+
+    // Orbiting dot
+    const dot_a = t * 0.0005;
+    const dot_x = cx + Math.cos(dot_a) * r;
+    const dot_y = cy + Math.sin(dot_a) * r;
+    ctx.beginPath(); ctx.arc(dot_x, dot_y, 3, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(240,238,234,0.7)'; ctx.fill();
+
+    // Second orbiting dot
+    const dot2_a = t * 0.0005 + Math.PI * 1.3;
+    const dot2_x = cx + Math.cos(dot2_a) * r * 0.68;
+    const dot2_y = cy + Math.sin(dot2_a) * r * 0.68;
+    ctx.beginPath(); ctx.arc(dot2_x, dot2_y, 2, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(196,184,163,0.5)'; ctx.fill();
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
